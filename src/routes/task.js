@@ -1,8 +1,8 @@
 /** @param {import('fastify').FastifyInstance} fastify */
-export default async function goal (fastify, options) {
-  const { goal: entity } = fastify.platformatic.entities
+export default async function task (fastify, options) {
+  const { task: entity } = fastify.platformatic.entities
   const schemaDefaults = {
-    tags: ['goals'],
+    tags: ['tasks'],
     security: [{ bearerAuth: [] }]
   }
   const schemaBody = {
@@ -10,14 +10,19 @@ export default async function goal (fastify, options) {
     properties: {
       name: { type: 'string' },
       planned: { type: 'string' },
+      target: { type: 'number' },
+      performance: { type: 'number' },
+      done: { type: 'string' },
       description: { type: 'string' },
-      parent: { type: 'number' }
+      performance_history: { type: 'object' },
+      group_id: { type: 'number' },
+      goal: { type: 'number' }
     },
     required: ['name']
   }
 
   fastify.addSchema({
-    $id: 'Goal',
+    $id: 'Task',
     type: 'object',
     properties: {
       id: { type: 'number' },
@@ -32,7 +37,7 @@ export default async function goal (fastify, options) {
         500: { $ref: 'HttpError' },
         200: {
           type: 'array',
-          items: { $ref: 'Goal#' }
+          items: { $ref: 'Task#' }
         }
       }
     }
@@ -54,15 +59,15 @@ export default async function goal (fastify, options) {
       body: schemaBody,
       response: {
         500: { $ref: 'HttpError' },
-        201: { $ref: 'Goal#' }
+        201: { $ref: 'Task#' }
       }
     }
   }, async (request, reply) => {
     const user = request.user
-    const { name, planned, description, parent } = request.body
+    const { name, planned, target, performance, done, description, goal } = request.body
     try {
       const item = await entity.save({
-        input: { name, planned, description, parent, userId: user.id }
+        input: { name, planned, target, performance, done, description, goal, userId: user.id }
       })
       return reply.code(201).send(item)
     } catch (error) {
@@ -76,7 +81,7 @@ export default async function goal (fastify, options) {
       response: {
         500: { $ref: 'HttpError' },
         404: { $ref: 'HttpError' },
-        200: { $ref: 'Goal#' }
+        200: { $ref: 'Task#' }
       }
     }
   }, async (request, reply) => {
@@ -102,16 +107,16 @@ export default async function goal (fastify, options) {
       body: schemaBody,
       response: {
         500: { $ref: 'HttpError' },
-        200: { $ref: 'Goal#' }
+        200: { $ref: 'Task#' }
       }
     }
   }, async (request, reply) => {
     const user = request.user
     const paramsId = request.params.id
-    const { name, planned, description, parent } = request.body
+    const { name, planned, target, performance, done, description, goal } = request.body
     try {
       const item = await entity.save({
-        input: { id: paramsId, name, planned, description, parent, userId: user.id }
+        input: { id: paramsId, name, planned, target, performance, done, description, goal, userId: user.id }
       })
       return reply.send(item)
     } catch (error) {

@@ -34,5 +34,6 @@ export default async function app (fastify, options) {
   fastify.register(async function authenticated (fastify, options) {
     fastify.addHook('onRequest', (request) => request.jwtVerify())
     fastify.register(import('./routes/goal.js'), { prefix: '/goals' })
+    fastify.register(import('./routes/task.js'), { prefix: '/tasks' })
   })
 }
