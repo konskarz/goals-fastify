@@ -30,4 +30,5 @@ export default async function app (fastify, options) {
   fastify.register(import('@fastify/swagger-ui'), {
     routePrefix: '/docs'
   })
+  fastify.register(import('./routes/user.js'))
 }
