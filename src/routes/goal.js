@@ -37,13 +37,13 @@ export default async function goal (fastify, options) {
       }
     }
   }, async (request, reply) => {
-    const user = request.user
     try {
-      const items = await entity.find({
-        where: { userId: { eq: user.id } }
+      const result = await entity.find({
+        where: { userId: { eq: request.user.id } }
       })
-      return reply.send(items)
+      return reply.send(result)
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -58,14 +58,14 @@ export default async function goal (fastify, options) {
       }
     }
   }, async (request, reply) => {
-    const user = request.user
     const { name, planned, description, parent } = request.body
     try {
-      const item = await entity.save({
-        input: { name, planned, description, parent, userId: user.id }
+      const result = await entity.save({
+        input: { name, planned, description, parent, userId: request.user.id }
       })
-      return reply.code(201).send(item)
+      return reply.code(201).send(result)
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -80,18 +80,13 @@ export default async function goal (fastify, options) {
       }
     }
   }, async (request, reply) => {
-    const user = request.user
-    const paramsId = request.params.id
     try {
-      const [item] = await entity.find({
-        where: { id: { eq: paramsId }, userId: { eq: user.id } }
+      const [result] = await entity.find({
+        where: { id: { eq: request.params.id }, userId: { eq: request.user.id } }
       })
-      if (item) {
-        return reply.send(item)
-      } else {
-        return reply.notFound()
-      }
+      return result ? reply.send(result) : reply.notFound()
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -106,15 +101,14 @@ export default async function goal (fastify, options) {
       }
     }
   }, async (request, reply) => {
-    const user = request.user
-    const paramsId = request.params.id
     const { name, planned, description, parent } = request.body
     try {
-      const item = await entity.save({
-        input: { id: paramsId, name, planned, description, parent, userId: user.id }
+      const result = await entity.save({
+        input: { id: request.params.id, name, planned, description, parent, userId: request.user.id }
       })
-      return reply.send(item)
+      return reply.send(result)
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -133,14 +127,13 @@ export default async function goal (fastify, options) {
       }
     }
   }, async (request, reply) => {
-    const user = request.user
-    const paramsId = request.params.id
     try {
       await entity.delete({
-        where: { id: { eq: paramsId }, userId: { eq: user.id } }
+        where: { id: { eq: request.params.id }, userId: { eq: request.user.id } }
       })
-      return reply.send({ message: paramsId + ' deleted successfully' })
+      return reply.send({ message: 'Successfully deleted' })
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })

@@ -35,8 +35,9 @@ export default async function user (fastify, options) {
       await entity.save({
         input: { username, password: hashedPassword }
       })
-      return reply.code(201).send({ message: 'User registered successfully' })
+      return reply.code(201).send({ message: 'Successfully registered' })
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -68,6 +69,7 @@ export default async function user (fastify, options) {
         return reply.unauthorized()
       }
     } catch (error) {
+      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
