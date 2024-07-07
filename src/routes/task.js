@@ -1,5 +1,5 @@
 /** @param {import('fastify').FastifyInstance} fastify */
-export default async function task (fastify, options) {
+export default async function task(fastify, options) {
   const { task: entity } = fastify.platformatic.entities
   const schemaDefaults = {
     tags: ['tasks'],
@@ -30,111 +30,113 @@ export default async function task (fastify, options) {
     }
   })
 
-  fastify.get('/', {
-    schema: {
-      ...schemaDefaults,
-      response: {
-        500: { $ref: 'HttpError' },
-        200: {
-          type: 'array',
-          items: { $ref: 'Task#' }
-        }
+  fastify.get(
+    '/',
+    {
+      schema: {
+        ...schemaDefaults,
+        response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
       }
-    }
-  }, async (request, reply) => {
-    try {
+    },
+    async (request, reply) => {
       const result = await entity.find({
         where: { userId: { eq: request.user.id } }
       })
-      return reply.send(result)
-    } catch (error) {
-      return reply.internalServerError()
+      return result
     }
-  })
+  )
 
-  fastify.post('/', {
-    schema: {
-      ...schemaDefaults,
-      body: schemaBody,
-      response: {
-        500: { $ref: 'HttpError' },
-        201: { $ref: 'Task#' }
+  fastify.post(
+    '/',
+    {
+      schema: {
+        ...schemaDefaults,
+        body: schemaBody,
+        response: { 201: { $ref: 'Task#' } }
       }
-    }
-  }, async (request, reply) => {
-    const { name, planned, target, performance, done, description, goal } = request.body
-    try {
+    },
+    async (request, reply) => {
+      const { name, planned, target, performance, done, description, goal } = request.body
       const result = await entity.save({
-        input: { name, planned, target, performance, done, description, goal, userId: request.user.id }
+        input: {
+          name,
+          planned,
+          target,
+          performance,
+          done,
+          description,
+          goal,
+          userId: request.user.id
+        }
       })
       return reply.code(201).send(result)
-    } catch (error) {
-      return reply.internalServerError()
     }
-  })
+  )
 
-  fastify.get('/:id', {
-    schema: {
-      ...schemaDefaults,
-      response: {
-        500: { $ref: 'HttpError' },
-        404: { $ref: 'HttpError' },
-        200: { $ref: 'Task#' }
+  fastify.get(
+    '/:id',
+    {
+      schema: {
+        ...schemaDefaults,
+        response: { 200: { $ref: 'Task#' } }
       }
-    }
-  }, async (request, reply) => {
-    try {
+    },
+    async (request, reply) => {
       const [result] = await entity.find({
         where: { id: { eq: request.params.id }, userId: { eq: request.user.id } }
       })
-      return result ? reply.send(result) : reply.notFound()
-    } catch (error) {
-      return reply.internalServerError()
+      return result ? result : reply.callNotFound()
     }
-  })
+  )
 
-  fastify.put('/:id', {
-    schema: {
-      ...schemaDefaults,
-      body: schemaBody,
-      response: {
-        500: { $ref: 'HttpError' },
-        200: { $ref: 'Task#' }
+  fastify.put(
+    '/:id',
+    {
+      schema: {
+        ...schemaDefaults,
+        body: schemaBody,
+        response: { 200: { $ref: 'Task#' } }
       }
-    }
-  }, async (request, reply) => {
-    const { name, planned, target, performance, done, description, goal } = request.body
-    try {
+    },
+    async (request, reply) => {
+      const { name, planned, target, performance, done, description, goal } = request.body
       const result = await entity.save({
-        input: { id: request.params.id, name, planned, target, performance, done, description, goal, userId: request.user.id }
+        input: {
+          id: request.params.id,
+          name,
+          planned,
+          target,
+          performance,
+          done,
+          description,
+          goal,
+          userId: request.user.id
+        }
       })
-      return reply.send(result)
-    } catch (error) {
-      return reply.internalServerError()
+      return result
     }
-  })
+  )
 
-  fastify.delete('/:id', {
-    schema: {
-      ...schemaDefaults,
-      response: {
-        500: { $ref: 'HttpError' },
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
+  fastify.delete(
+    '/:id',
+    {
+      schema: {
+        ...schemaDefaults,
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
           }
         }
       }
-    }
-  }, async (request, reply) => {
-    try {
+    },
+    async (request, reply) => {
       await entity.delete({
         where: { id: { eq: request.params.id }, userId: { eq: request.user.id } }
       })
-      return reply.send({ message: 'Successfully deleted' })
-    } catch (error) {
-      return reply.internalServerError()
+      return { message: 'Successfully deleted' }
     }
-  })
+  )
 }

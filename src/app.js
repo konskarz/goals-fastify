@@ -1,15 +1,9 @@
 import mapper from '@platformatic/sql-mapper'
 
 /** @param {import('fastify').FastifyInstance} fastify */
-export default async function app (fastify, options) {
-  fastify.get('/', async (request, reply) => {
-    return { hello: 'world' }
-  })
+export default async function app(fastify, options) {
   fastify.register(mapper.plugin, {
     connectionString: process.env.DATABASE_URL
-  })
-  fastify.register(import('@fastify/sensible'), {
-    sharedSchemaId: 'HttpError'
   })
   fastify.register(import('@fastify/jwt'), {
     secret: process.env.JWT_SECRET
@@ -28,10 +22,10 @@ export default async function app (fastify, options) {
     }
   })
   fastify.register(import('@fastify/swagger-ui'), {
-    routePrefix: '/docs'
+    routePrefix: '/'
   })
   fastify.register(import('./routes/user.js'))
-  fastify.register(async function authenticated (fastify, options) {
+  fastify.register(async function authenticated(fastify, options) {
     fastify.addHook('onRequest', (request) => request.jwtVerify())
     fastify.register(import('./routes/goal.js'), { prefix: '/goals' })
     fastify.register(import('./routes/task.js'), { prefix: '/tasks' })
