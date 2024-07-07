@@ -43,7 +43,6 @@ export default async function goal (fastify, options) {
       })
       return reply.send(result)
     } catch (error) {
-      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -65,7 +64,6 @@ export default async function goal (fastify, options) {
       })
       return reply.code(201).send(result)
     } catch (error) {
-      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -86,7 +84,6 @@ export default async function goal (fastify, options) {
       })
       return result ? reply.send(result) : reply.notFound()
     } catch (error) {
-      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -108,7 +105,6 @@ export default async function goal (fastify, options) {
       })
       return reply.send(result)
     } catch (error) {
-      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
@@ -133,7 +129,6 @@ export default async function goal (fastify, options) {
       })
       return reply.send({ message: 'Successfully deleted' })
     } catch (error) {
-      fastify.log.error(error);
       return reply.internalServerError()
     }
   })
