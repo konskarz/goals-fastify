@@ -1,0 +1,2 @@
+ALTER TABLE public.tasks ALTER COLUMN planned DROP DEFAULT;
+ALTER TABLE public.tasks ALTER COLUMN target DROP DEFAULT;

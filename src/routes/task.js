@@ -21,16 +21,6 @@ export default async function task(fastify, options) {
     properties: { ...schemaInput.properties, recurring_until: { type: 'string' } },
     required: ['name']
   })
-  const schemaRecurringInput = {
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      target: { type: 'number' },
-      done: { type: 'string' },
-      description: { type: 'string' },
-      goal: { type: 'number' }
-    }
-  }
   // TODO: move Performance History Management to FE
   async function updatePerformanceHistory(item) {
     const now = new Date()
@@ -48,8 +38,8 @@ export default async function task(fastify, options) {
     ) {
       input.done = item.done ? null : now
     }
-    const result = await entity.save({ input })
-    return result
+    const res = await entity.save({ input })
+    return res
   }
   async function createRecurringTasks(request, reply) {
     const fields = ['name', 'target', 'done', 'description', 'goal']
@@ -68,8 +58,8 @@ export default async function task(fastify, options) {
       const planned = new Date(startDate.getTime() + msWeek * i)
       inputs.push({ ...inputDefaults, planned })
     }
-    const result = await entity.insert({ inputs })
-    return reply.code(201).send(result)
+    const res = await entity.insert({ inputs })
+    return res
   }
 
   // TODO: rename performance_history to performanceHistory in FE
@@ -92,17 +82,29 @@ export default async function task(fastify, options) {
     }
   })
 
+  fastify.register(import('./recurring.js'), { prefix: '/recurring' })
+
   fastify.get(
     '/',
     {
       schema: {
         ...schemaDefaults,
+        querystring: {
+          type: 'object',
+          properties: {
+            limit: { type: 'integer' },
+            offset: { type: 'integer' }
+          }
+        },
         response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
       }
     },
     async (request, reply) => {
-      const result = await entity.find({ where: { userId: { eq: request.user.id } } })
-      return result
+      const res = await entity.find({
+        where: { userId: { eq: request.user.id } },
+        ...request.query
+      })
+      return res
     }
   )
 
@@ -112,16 +114,14 @@ export default async function task(fastify, options) {
       schema: {
         ...schemaDefaults,
         body: schemaInputCreate,
-        response: { 201: { type: 'array', items: { $ref: 'Task#' } } }
+        response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
       }
     },
     async (request, reply) => {
       // TODO: move to post: recurring
       if (request.body.recurring_until) return await createRecurringTasks(request, reply)
-      const result = await entity.save({ input: { ...request.body, userId: request.user.id } })
-      return reply
-        .code(201)
-        .send(request.body.performance ? await updatePerformanceHistory(result) : [result])
+      const res = await entity.save({ input: { ...request.body, userId: request.user.id } })
+      return request.body.performance ? await updatePerformanceHistory(res) : [res]
     }
   )
 
@@ -129,8 +129,8 @@ export default async function task(fastify, options) {
     '/:id',
     { schema: { ...schemaDefaults, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {
-      const [result] = await entity.find({ where: { id: { eq: request.params.id } } })
-      return result ? result : reply.callNotFound()
+      const res = await entity.find({ where: { id: { eq: request.params.id } } })
+      return res.length === 0 ? reply.callNotFound() : res[0]
     }
   )
 
@@ -138,54 +138,17 @@ export default async function task(fastify, options) {
     '/:id',
     { schema: { ...schemaDefaults, body: schemaInput, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {
-      const result = await entity.save({ input: { id: request.params.id, ...request.body } })
-      return request.body.performance ? await updatePerformanceHistory(result) : result
+      const res = await entity.save({ input: { id: request.params.id, ...request.body } })
+      return request.body.performance ? await updatePerformanceHistory(res) : res
     }
   )
 
   fastify.delete(
     '/:id',
-    {
-      schema: {
-        ...schemaDefaults,
-        response: { 200: { type: 'object', properties: { message: { type: 'string' } } } }
-      }
-    },
+    { schema: { ...schemaDefaults, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {
-      await entity.delete({ where: { id: { eq: request.params.id } } })
-      return { message: 'Successfully deleted' }
-    }
-  )
-
-  fastify.patch(
-    '/recurring/:group_id',
-    {
-      schema: {
-        ...schemaDefaults,
-        body: schemaRecurringInput,
-        response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
-      }
-    },
-    async (request, reply) => {
-      const result = await entity.updateMany({
-        where: { groupId: { eq: request.params.group_id } },
-        input: request.body
-      })
-      return result
-    }
-  )
-
-  fastify.delete(
-    '/recurring/:group_id',
-    {
-      schema: {
-        ...schemaDefaults,
-        response: { 200: { type: 'object', properties: { message: { type: 'string' } } } }
-      }
-    },
-    async (request, reply) => {
-      await entity.delete({ where: { groupId: { eq: request.params.group_id } } })
-      return { message: 'Successfully deleted' }
+      const res = await entity.delete({ where: { id: { eq: request.params.id } } })
+      return res.length === 0 ? reply.callNotFound() : res[0]
     }
   )
 }
