@@ -2,3 +2,4 @@ node_modules
 .postgratorrc.json
 .env
 *.http
+.project
