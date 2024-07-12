@@ -131,13 +131,6 @@ export default async function seed(app, opts) {
           group_id: 'ee6fde58d41f444e9c48af8f55381c8d',
           userId
         })
-        inputs.push({
-          name: 'Prepare a bowl of fruits as an evening snack',
-          goal: goals[0].id,
-          planned,
-          group_id: 'ee6fde58d41f444e9c48af8f55381c8d',
-          userId
-        })
       })
       await task.insert({ inputs })
       return { message: 'Successfully applied' }

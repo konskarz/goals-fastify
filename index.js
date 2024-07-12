@@ -3,7 +3,7 @@
 import mapper from '@platformatic/sql-mapper'
 
 /** @param {import('fastify').FastifyInstance} app */
-export default async function goals(app, opts) {
+export default async function index(app, opts) {
   app.register(mapper.plugin, {
     connectionString: process.env.DATABASE_URL,
     ignore: { schemaversion: true },

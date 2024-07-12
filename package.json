@@ -1,14 +1,17 @@
 {
   "name": "goals-fastify",
   "version": "1.0.0",
-  "author": "Konstantin Karzanov <k.karzanov@gmail.com>",
-  "private": true,
   "type": "module",
+  "module": "index.js",
+  "description": "",
   "scripts": {
     "start": "fastify start -l info app.js",
     "dev": "fastify start -w -l info -P app.js",
     "migrate": "postgrator"
   },
+  "keywords": [],
+  "author": "Konstantin Karzanov <k.karzanov@gmail.com>",
+  "license": "ISC",
   "dependencies": {
     "@fastify/jwt": "^8.0.1",
     "@fastify/swagger": "^8.14.0",
