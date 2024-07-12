@@ -7,7 +7,8 @@
   "scripts": {
     "start": "fastify start -l info index.js",
     "dev": "fastify start -w -l info -P index.js",
-    "migrate": "postgrator"
+    "migrate": "postgrator",
+    "reset": "postgrator 0"
   },
   "keywords": [],
   "author": "Konstantin Karzanov <k.karzanov@gmail.com>",
