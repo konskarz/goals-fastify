@@ -5,8 +5,8 @@
   "module": "index.js",
   "description": "",
   "scripts": {
-    "start": "fastify start -l info app.js",
-    "dev": "fastify start -w -l info -P app.js",
+    "start": "fastify start -l info index.js",
+    "dev": "fastify start -w -l info -P index.js",
     "migrate": "postgrator"
   },
   "keywords": [],
