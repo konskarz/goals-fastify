@@ -9,7 +9,7 @@ export default async function user(app, opts) {
   const keylen = 64
   const digest = 'sha512'
   function hash(password) {
-    const salt = randomBytes(12).toString('hex')
+    const salt = randomBytes(16).toString('hex')
     const hash = pbkdf2Sync(password, salt, iterations, keylen, digest).toString('hex')
     return [salt, hash].join('$')
   }
