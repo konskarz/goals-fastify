@@ -5,16 +5,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "fastify start -l info src/app.js",
-    "dev": "fastify start -w -l info -P src/app.js",
+    "start": "fastify start -l info app.js",
+    "dev": "fastify start -w -l info -P app.js",
     "migrate": "postgrator"
   },
   "dependencies": {
     "@fastify/jwt": "^8.0.1",
     "@fastify/swagger": "^8.14.0",
-    "@platformatic/sql-mapper": "^1.49.0",
-    "@scalar/fastify-api-reference": "^1.24.36",
-    "bcryptjs": "^2.4.3",
+    "@platformatic/sql-mapper": "^1.49.1",
+    "@scalar/fastify-api-reference": "^1.24.40",
     "fastify": "^4.28.1"
   },
   "devDependencies": {

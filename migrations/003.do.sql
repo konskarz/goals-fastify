@@ -1,2 +1,0 @@
-ALTER TABLE public.tasks ALTER COLUMN target SET DEFAULT 1;
-ALTER TABLE public.tasks ALTER COLUMN planned SET DEFAULT now();

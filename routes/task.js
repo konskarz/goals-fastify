@@ -1,8 +1,10 @@
+'use strict'
+
 import { randomUUID } from 'node:crypto'
 
-/** @param {import('fastify').FastifyInstance} fastify */
-export default async function task(fastify, options) {
-  const { task: entity } = fastify.platformatic.entities
+/** @param {import('fastify').FastifyInstance} app */
+export default async function task(app, opts) {
+  const { task: entity } = app.platformatic.entities
   const schemaDefaults = { tags: ['tasks'], security: [{ bearerAuth: [] }] }
   const schemaInput = {
     type: 'object',
@@ -59,11 +61,11 @@ export default async function task(fastify, options) {
       inputs.push({ ...inputDefaults, planned })
     }
     const res = await entity.insert({ inputs })
-    return res
+    return res[0]
   }
 
   // TODO: rename performance_history to performanceHistory in FE
-  fastify.addSchema({
+  app.addSchema({
     $id: 'Task',
     type: 'object',
     properties: {
@@ -82,19 +84,16 @@ export default async function task(fastify, options) {
     }
   })
 
-  fastify.register(import('./recurring.js'), { prefix: '/recurring' })
+  app.register(import('./recurring.js'), { prefix: '/recurring' })
 
-  fastify.get(
+  app.get(
     '/',
     {
       schema: {
         ...schemaDefaults,
         querystring: {
           type: 'object',
-          properties: {
-            limit: { type: 'integer' },
-            offset: { type: 'integer' }
-          }
+          properties: { limit: { type: 'integer' }, offset: { type: 'integer' } }
         },
         response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
       }
@@ -108,24 +107,24 @@ export default async function task(fastify, options) {
     }
   )
 
-  fastify.post(
+  app.post(
     '/',
     {
       schema: {
         ...schemaDefaults,
         body: schemaInputCreate,
-        response: { 200: { type: 'array', items: { $ref: 'Task#' } } }
+        response: { 200: { $ref: 'Task#' } }
       }
     },
     async (request, reply) => {
       // TODO: move to post: recurring
       if (request.body.recurring_until) return await createRecurringTasks(request, reply)
       const res = await entity.save({ input: { ...request.body, userId: request.user.id } })
-      return request.body.performance ? await updatePerformanceHistory(res) : [res]
+      return request.body.performance ? await updatePerformanceHistory(res) : res
     }
   )
 
-  fastify.get(
+  app.get(
     '/:id',
     { schema: { ...schemaDefaults, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {
@@ -134,7 +133,7 @@ export default async function task(fastify, options) {
     }
   )
 
-  fastify.patch(
+  app.patch(
     '/:id',
     { schema: { ...schemaDefaults, body: schemaInput, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {
@@ -143,7 +142,7 @@ export default async function task(fastify, options) {
     }
   )
 
-  fastify.delete(
+  app.delete(
     '/:id',
     { schema: { ...schemaDefaults, response: { 200: { $ref: 'Task#' } } } },
     async (request, reply) => {

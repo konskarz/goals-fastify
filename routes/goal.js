@@ -1,6 +1,8 @@
-/** @param {import('fastify').FastifyInstance} fastify */
-export default async function goal(fastify, options) {
-  const { goal: entity } = fastify.platformatic.entities
+'use strict'
+
+/** @param {import('fastify').FastifyInstance} app */
+export default async function goal(app, opts) {
+  const { goal: entity } = app.platformatic.entities
   const schemaDefaults = { tags: ['goals'], security: [{ bearerAuth: [] }] }
   const schemaInput = {
     type: 'object',
@@ -12,23 +14,20 @@ export default async function goal(fastify, options) {
     }
   }
 
-  fastify.addSchema({
+  app.addSchema({
     $id: 'Goal',
     type: 'object',
     properties: { id: { type: 'number' }, ...schemaInput.properties }
   })
 
-  fastify.get(
+  app.get(
     '/',
     {
       schema: {
         ...schemaDefaults,
         querystring: {
           type: 'object',
-          properties: {
-            limit: { type: 'integer' },
-            offset: { type: 'integer' }
-          }
+          properties: { limit: { type: 'integer' }, offset: { type: 'integer' } }
         },
         response: { 200: { type: 'array', items: { $ref: 'Goal#' } } }
       }
@@ -42,7 +41,7 @@ export default async function goal(fastify, options) {
     }
   )
 
-  fastify.post(
+  app.post(
     '/',
     {
       schema: {
@@ -57,7 +56,7 @@ export default async function goal(fastify, options) {
     }
   )
 
-  fastify.get(
+  app.get(
     '/:id',
     { schema: { ...schemaDefaults, response: { 200: { $ref: 'Goal#' } } } },
     async (request, reply) => {
@@ -66,7 +65,7 @@ export default async function goal(fastify, options) {
     }
   )
 
-  fastify.patch(
+  app.patch(
     '/:id',
     { schema: { ...schemaDefaults, body: schemaInput, response: { 200: { $ref: 'Goal#' } } } },
     async (request, reply) => {
@@ -75,7 +74,7 @@ export default async function goal(fastify, options) {
     }
   )
 
-  fastify.delete(
+  app.delete(
     '/:id',
     { schema: { ...schemaDefaults, response: { 200: { $ref: 'Goal#' } } } },
     async (request, reply) => {

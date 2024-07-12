@@ -1,9 +1,11 @@
-/** @param {import('fastify').FastifyInstance} fastify */
-export default async function seed(fastify, options) {
-  const { goal, task } = fastify.platformatic.entities
+'use strict'
+
+/** @param {import('fastify').FastifyInstance} app */
+export default async function seed(app, opts) {
+  const { goal, task } = app.platformatic.entities
   const schemaDefaults = { tags: ['seed'], security: [{ bearerAuth: [] }] }
 
-  fastify.get(
+  app.get(
     '/',
     {
       schema: {

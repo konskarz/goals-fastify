@@ -1,6 +1,8 @@
-/** @param {import('fastify').FastifyInstance} fastify */
-export default async function task(fastify, options) {
-  const { task: entity } = fastify.platformatic.entities
+'use strict'
+
+/** @param {import('fastify').FastifyInstance} app */
+export default async function task(app, opts) {
+  const { task: entity } = app.platformatic.entities
   const schemaDefaults = { tags: ['tasks'], security: [{ bearerAuth: [] }] }
   const schemaInput = {
     type: 'object',
@@ -13,7 +15,7 @@ export default async function task(fastify, options) {
     }
   }
 
-  fastify.patch(
+  app.patch(
     '/:group_id',
     {
       schema: {
@@ -31,7 +33,7 @@ export default async function task(fastify, options) {
     }
   )
 
-  fastify.delete(
+  app.delete(
     '/:group_id',
     {
       schema: {
