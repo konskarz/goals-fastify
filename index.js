@@ -1,10 +1,8 @@
 'use strict'
 
-import mapper from '@platformatic/sql-mapper'
-
 /** @param {import('fastify').FastifyInstance} app */
 export default async function index(app, opts) {
-  app.register(mapper.plugin, {
+  app.register(import('@platformatic/sql-mapper'), {
     connectionString: process.env.DATABASE_URL,
     ignore: { schemaversion: true },
     limit: { default: 999999, max: 999999 }
