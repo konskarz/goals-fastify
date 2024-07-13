@@ -1,7 +1,7 @@
 'use strict'
 
 /** @param {import('fastify').FastifyInstance} app */
-export default async function task(app, opts) {
+export default async function group(app, opts) {
   const { task: entity } = app.platformatic.entities
   const schemaDefaults = { tags: ['tasks'], security: [{ bearerAuth: [] }] }
   const schemaInput = {

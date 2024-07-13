@@ -23,14 +23,13 @@ export default async function task(app, opts) {
     properties: { ...schemaInput.properties, recurring_until: { type: 'string' } },
     required: ['name']
   })
-  // TODO: move Performance History Management to FE
+  // TODO: move to FE
   async function updatePerformanceHistory(item) {
     const now = new Date()
     item.performanceHistory.unshift({ value: item.performance, updated: now })
     const input = {
       id: item.id,
-      // https://github.com/brianc/node-postgres/issues/442
-      // https://github.com/brianc/node-postgres/issues/374
+      // Invalid syntax for type json on arrays: https://github.com/brianc/node-postgres/issues/442
       performanceHistory: JSON.stringify(item.performanceHistory)
     }
     if (
@@ -43,18 +42,19 @@ export default async function task(app, opts) {
     const res = await entity.save({ input })
     return res
   }
+  // TODO: move to recurring route
   async function createRecurringTasks(request, reply) {
+    const startDate = request.body.planned ? new Date(request.body.planned) : new Date()
+    const endDate = new Date(request.body.recurring_until)
+    const msWeek = 1000 * 60 * 60 * 24 * 7
+    const numberOfWeeks = Math.floor((endDate - startDate) / msWeek)
+    if (numberOfWeeks < 0) throw new Error('Incorrect recurring_until value')
     const fields = ['name', 'target', 'done', 'description', 'goal']
     const inputDefaults = Object.fromEntries(
       Object.entries(request.body).filter(([key, val]) => fields.includes(key))
     )
     inputDefaults.userId = request.user.id
     inputDefaults.groupId = randomUUID()
-    const startDate = request.body.planned ? new Date(request.body.planned) : new Date()
-    const endDate = new Date(request.body.recurring_until)
-    const msWeek = 1000 * 60 * 60 * 24 * 7
-    const numberOfWeeks = Math.floor((endDate - startDate) / msWeek)
-    if (numberOfWeeks < 0) throw new Error('Incorrect recurring_until value')
     const inputs = []
     for (let i = 0; i <= numberOfWeeks; i++) {
       const planned = new Date(startDate.getTime() + msWeek * i)
@@ -64,7 +64,7 @@ export default async function task(app, opts) {
     return res[0]
   }
 
-  // TODO: rename performance_history to performanceHistory in FE
+  // TODO: rename performance_history in FE
   app.addSchema({
     $id: 'Task',
     type: 'object',
@@ -75,16 +75,11 @@ export default async function task(app, opts) {
         type: 'array',
         items: {
           type: 'object',
-          properties: {
-            value: { type: 'number' },
-            updated: { type: 'string' }
-          }
+          properties: { value: { type: 'number' }, updated: { type: 'string' } }
         }
       }
     }
   })
-
-  app.register(import('./recurring.js'), { prefix: '/recurring' })
 
   app.get(
     '/',
@@ -117,7 +112,6 @@ export default async function task(app, opts) {
       }
     },
     async (request, reply) => {
-      // TODO: move to post: recurring
       if (request.body.recurring_until) return await createRecurringTasks(request, reply)
       const res = await entity.save({ input: { ...request.body, userId: request.user.id } })
       return request.body.performance ? await updatePerformanceHistory(res) : res
@@ -150,4 +144,6 @@ export default async function task(app, opts) {
       return res.length === 0 ? reply.callNotFound() : res[0]
     }
   )
+
+  app.register(import('./group.js'), { prefix: '/recurring' })
 }
