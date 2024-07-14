@@ -23,20 +23,10 @@ export default async function goal(app, opts) {
   app.get(
     '/',
     {
-      schema: {
-        ...schemaDefaults,
-        querystring: {
-          type: 'object',
-          properties: { limit: { type: 'integer' }, offset: { type: 'integer' } }
-        },
-        response: { 200: { type: 'array', items: { $ref: 'Goal#' } } }
-      }
+      schema: { ...schemaDefaults, response: { 200: { type: 'array', items: { $ref: 'Goal#' } } } }
     },
     async (request, reply) => {
-      const res = await entity.find({
-        where: { userId: { eq: request.user.id } },
-        ...request.query
-      })
+      const res = await entity.find({ where: { userId: { eq: request.user.id } } })
       return res
     }
   )

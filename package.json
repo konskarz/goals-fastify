@@ -5,7 +5,6 @@
   "module": "index.js",
   "description": "",
   "scripts": {
-    "start": "fastify start -l info index.js",
     "dev": "fastify start -w -l info -P index.js",
     "migrate": "postgrator",
     "reset": "postgrator 0"

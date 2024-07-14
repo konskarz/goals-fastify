@@ -21,6 +21,5 @@ export default async function index(app, opts) {
     app.addHook('onRequest', (request) => request.jwtVerify())
     app.register(import('./routes/goal.js'), { prefix: '/goals' })
     app.register(import('./routes/task.js'), { prefix: '/tasks' })
-    app.register(import('./routes/seed.js'), { prefix: '/seed' })
   })
 }
