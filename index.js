@@ -2,6 +2,7 @@
 
 /** @param {import('fastify').FastifyInstance} app */
 export default async function index(app, opts) {
+  app.register(import('@fastify/cors'))
   app.register(import('@platformatic/sql-mapper'), {
     connectionString: process.env.DATABASE_URL,
     ignore: { schemaversion: true },
