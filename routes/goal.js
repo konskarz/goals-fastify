@@ -8,16 +8,16 @@ export default async function goal(app, opts) {
     type: 'object',
     properties: {
       name: { type: 'string' },
-      planned: { type: 'string' },
-      description: { type: 'string' },
-      parent: { type: 'number' }
+      planned: { type: 'string', nullable: true },
+      description: { type: 'string', nullable: true },
+      parent: { type: 'integer', nullable: true }
     }
   }
 
   app.addSchema({
     $id: 'Goal',
     type: 'object',
-    properties: { id: { type: 'number' }, ...schemaInput.properties }
+    properties: { id: { type: 'integer' }, ...schemaInput.properties }
   })
 
   app.get(

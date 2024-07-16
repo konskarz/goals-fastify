@@ -9,12 +9,11 @@ export default async function task(app, opts) {
     properties: {
       name: { type: 'string' },
       planned: { type: 'string' },
-      target: { type: 'number' },
-      performance: { type: 'number' },
-      done: { type: 'string' },
-      description: { type: 'string' },
-      groupId: { type: 'string' },
-      goal: { type: 'number' }
+      target: { type: 'integer' },
+      performance: { type: 'integer' },
+      done: { type: 'string', nullable: true },
+      description: { type: 'string', nullable: true },
+      goal: { type: 'integer', nullable: true }
     }
   }
   // TODO: move to FE
@@ -42,8 +41,9 @@ export default async function task(app, opts) {
     $id: 'Task',
     type: 'object',
     properties: {
-      id: { type: 'number' },
+      id: { type: 'integer' },
       ...schemaInput.properties,
+      groupId: { type: 'string', nullable: true },
       performanceHistory: {
         type: 'array',
         items: {
