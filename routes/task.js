@@ -1,5 +1,7 @@
 'use strict'
 
+import { randomUUID } from 'node:crypto'
+
 /** @param {import('fastify').FastifyInstance} app */
 export default async function task(app, opts) {
   const { task: entity } = app.platformatic.entities
@@ -16,6 +18,10 @@ export default async function task(app, opts) {
       goal: { type: 'integer', nullable: true }
     }
   }
+  const schemaInputCreate = Object.assign({}, schemaInput, {
+    properties: { ...schemaInput.properties, recurring_until: { type: 'string' } },
+    required: ['name', 'planned']
+  })
   // TODO: move to FE
   async function updatePerformanceHistory(item) {
     const now = new Date()
@@ -35,8 +41,29 @@ export default async function task(app, opts) {
     const res = await entity.save({ input })
     return res
   }
+  // TODO: move to FE
+  async function createRecurringTasks(request, reply) {
+    const startDate = new Date(request.body.planned)
+    const endDate = new Date(request.body.recurring_until)
+    const msWeek = 1000 * 60 * 60 * 24 * 7
+    const numberOfWeeks = Math.floor((endDate - startDate) / msWeek)
+    if (numberOfWeeks < 0) throw new Error('Incorrect recurring_until value')
+    const fields = ['name', 'target', 'done', 'description', 'goal']
+    const inputDefaults = Object.fromEntries(
+      Object.entries(request.body).filter(([key, val]) => fields.includes(key))
+    )
+    inputDefaults.userId = request.user.id
+    inputDefaults.groupId = randomUUID()
+    const inputs = []
+    for (let i = 0; i <= numberOfWeeks; i++) {
+      const planned = new Date(startDate.getTime() + msWeek * i)
+      inputs.push({ ...inputDefaults, planned })
+    }
+    const res = await entity.insert({ inputs })
+    return res[0]
+  }
 
-  // TODO: rename performance_history, group_id, recurring_until in FE
+  // TODO: rename performance_history, group_id in FE
   app.addSchema({
     $id: 'Task',
     type: 'object',
@@ -70,11 +97,12 @@ export default async function task(app, opts) {
     {
       schema: {
         ...schemaDefaults,
-        body: { ...schemaInput, required: ['name', 'planned'] },
+        body: schemaInputCreate,
         response: { 200: { $ref: 'Task#' } }
       }
     },
     async (request, reply) => {
+      if (request.body.recurring_until) return await createRecurringTasks(request, reply)
       const res = await entity.save({ input: { ...request.body, userId: request.user.id } })
       return request.body.performance ? await updatePerformanceHistory(res) : res
     }
