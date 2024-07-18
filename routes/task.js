@@ -22,7 +22,6 @@ export default async function task(app, opts) {
     properties: { ...schemaInput.properties, recurring_until: { type: 'string' } },
     required: ['name', 'planned']
   })
-  // TODO: move to FE
   async function updatePerformanceHistory(item) {
     const now = new Date()
     item.performanceHistory.unshift({ value: item.performance, updated: now })
@@ -41,13 +40,12 @@ export default async function task(app, opts) {
     const res = await entity.save({ input })
     return res
   }
-  // TODO: move to FE
   async function createRecurringTasks(request, reply) {
     const startDate = new Date(request.body.planned)
     const endDate = new Date(request.body.recurring_until)
     const msWeek = 1000 * 60 * 60 * 24 * 7
     const numberOfWeeks = Math.floor((endDate - startDate) / msWeek)
-    if (numberOfWeeks < 0) throw new Error('Incorrect recurring_until value')
+    if (numberOfWeeks < 0 || numberOfWeeks > 265) throw new Error('Incorrect recurring_until value')
     const fields = ['name', 'target', 'done', 'description', 'goal']
     const inputDefaults = Object.fromEntries(
       Object.entries(request.body).filter(([key, val]) => fields.includes(key))
@@ -63,7 +61,6 @@ export default async function task(app, opts) {
     return res[0]
   }
 
-  // TODO: rename performance_history, group_id in FE
   app.addSchema({
     $id: 'Task',
     type: 'object',
