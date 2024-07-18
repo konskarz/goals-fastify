@@ -66,12 +66,14 @@ export default async function user(app, opts) {
       planned: week[4],
       userId
     })
-    week.forEach((planned) => {
+    week.forEach((planned, i) => {
       inputs.push({
         name: 'Sleep at least 8 hours a day',
         goal: goals[1].id,
         planned,
-        target: 5,
+        target: 7,
+        performance: i < 2 ? 7 - i : 0,
+        done: i < 1 ? planned : null,
         group_id: '24a13981b6d24bd58d7b47377eac86df',
         userId
       })
@@ -79,6 +81,7 @@ export default async function user(app, opts) {
         name: 'Post high-quality content on my social media profile at least once per week',
         goal: goals[0].id,
         planned,
+        done: i < 2 ? planned : null,
         group_id: '328ce0457f1d496ab8d74130d2b208f3',
         userId
       })
@@ -86,7 +89,9 @@ export default async function user(app, opts) {
         name: 'Go for a walk during my lunch break',
         goal: goals[1].id,
         planned,
-        target: 5,
+        target: 7,
+        performance: i < 2 ? 7 - i : 0,
+        done: i < 1 ? planned : null,
         group_id: '83dca1edce0e4191b71956433a888ac9',
         userId
       })
