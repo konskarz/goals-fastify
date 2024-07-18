@@ -2,10 +2,10 @@
   "name": "goals-fastify",
   "version": "1.0.0",
   "type": "module",
-  "module": "index.js",
+  "module": "goals.js",
   "description": "",
   "scripts": {
-    "dev": "fastify start -w -l info -P index.js",
+    "dev": "fastify start -w -l info -P goals.js",
     "migrate": "postgrator",
     "reset": "postgrator 0"
   },

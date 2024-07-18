@@ -1,11 +1,10 @@
 'use strict'
 
 /** @param {import('fastify').FastifyInstance} app */
-export default async function index(app, opts) {
+export default async function goals(app, opts) {
   app.register(import('@fastify/cors'))
   app.register(import('@platformatic/sql-mapper'), {
     connectionString: process.env.DATABASE_URL,
-    ignore: { schemaversion: true },
     limit: { default: 999999, max: 999999 }
   })
   app.register(import('@fastify/jwt'), { secret: process.env.JWT_SECRET })
