@@ -15,7 +15,7 @@ export default async function goals(app, opts) {
       }
     }
   })
-  app.register(import('@scalar/fastify-api-reference'), { routePrefix: '/' })
+  app.register(import('@fastify/swagger-ui'), { routePrefix: '/' })
   app.register(import('./routes/user.js'))
   app.register(async function authenticated(app, opts) {
     app.addHook('onRequest', (request) => request.jwtVerify())
