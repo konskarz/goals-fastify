@@ -16,14 +16,14 @@ export default async function goals(app, opts) {
       }
     }
   })
-  app.get('/json', { schema: { hide: true }, logLevel: 'warn' }, async () => app.swagger())
-  app.get('/yaml', { schema: { hide: true }, logLevel: 'warn' }, async () =>
+  app.get('/docs/json', { schema: { hide: true }, logLevel: 'warn' }, async () => app.swagger())
+  app.get('/docs/yaml', { schema: { hide: true }, logLevel: 'warn' }, async () =>
     app.swagger({ yaml: true })
   )
   app.register(import('@scalar/fastify-api-reference'), {
     logLevel: 'warn',
     prefix: undefined,
-    routePrefix: '/'
+    routePrefix: '/docs'
   })
   app.register(import('./routes/user.js'))
   app.register(async function authenticated(app, opts) {
