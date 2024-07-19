@@ -18,6 +18,7 @@
     "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^4.0.0",
     "@platformatic/sql-mapper": "^1.49.1",
+    "@scalar/fastify-api-reference": "^1.24.49",
     "fastify": "^4.28.1"
   },
   "devDependencies": {

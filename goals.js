@@ -9,13 +9,22 @@ export default async function goals(app, opts) {
   })
   app.register(import('@fastify/jwt'), { secret: process.env.JWT_SECRET })
   app.register(import('@fastify/swagger'), {
+    exposeRoute: true,
     openapi: {
       components: {
         securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } }
       }
     }
   })
-  app.register(import('@fastify/swagger-ui'), { routePrefix: '/' })
+  app.get('/json', { schema: { hide: true }, logLevel: 'warn' }, async () => app.swagger())
+  app.get('/yaml', { schema: { hide: true }, logLevel: 'warn' }, async () =>
+    app.swagger({ yaml: true })
+  )
+  app.register(import('@scalar/fastify-api-reference'), {
+    logLevel: 'warn',
+    prefix: undefined,
+    routePrefix: '/'
+  })
   app.register(import('./routes/user.js'))
   app.register(async function authenticated(app, opts) {
     app.addHook('onRequest', (request) => request.jwtVerify())
